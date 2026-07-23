@@ -1,0 +1,59 @@
+@import url("https://fonts.cdnfonts.com/css/pp-neue-montreal");
+
+.slider {
+    position: relative;
+    width: 100%;
+    height: 100svh;
+    overflow: hidden;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+}
+
+.slider:active {
+    cursor: grabbing;
+}
+
+.slide {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    overflow: hidden;
+    will-change: transform, width, height;
+    user-select: none;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+}
+
+.sliderHeader {
+    position: absolute;
+    top: 3rem;
+    left: 3rem;
+    z-index: 10;
+    user-select: none;
+}
+
+.sliderHeader h1 {
+    font-family: "PP Neue Montreal", sans-serif;
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight: 500;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    margin: 0;
+}
+
+.sliderHeader h2 {
+    font-family: "PP Neue Montreal", sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 500;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    margin-top: 0.3rem;
+}
