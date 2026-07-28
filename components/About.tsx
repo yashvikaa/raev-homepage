@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 
@@ -8,11 +8,71 @@ interface AboutProps {
   onSelectSection?: (section: "hero" | "about") => void;
 }
 
-export default function About({ onSelectSection }: AboutProps) {
+export interface AboutRefHandle {
+  triggerReveal: () => void;
+}
+
+const About = forwardRef<AboutRefHandle, AboutProps>(({ onSelectSection }, ref) => {
   const containerRef = useRef<HTMLElement | null>(null);
   const bgRef = useRef<HTMLDivElement | null>(null);
-  const textRef = useRef<HTMLHeadingElement | null>(null);
+  const headingContainerRef = useRef<HTMLDivElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const ctaTopLeftRef = useRef<HTMLDivElement | null>(null);
+  const bottomRightRef = useRef<HTMLDivElement | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const hasAnimatedRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    triggerReveal: () => {
+      if (hasAnimatedRef.current) return;
+      hasAnimatedRef.current = true;
+
+      // 600ms duration with Slow easing (power2.inOut)
+      const tl = gsap.timeline({
+        defaults: { duration: 0.6, ease: "power2.inOut" },
+      });
+
+      // 1. Animate RAEV STUDIO heading from center to top-left
+      if (headingContainerRef.current) {
+        tl.to(
+          headingContainerRef.current,
+          {
+            top: "0%",
+            left: "0%",
+            xPercent: 0,
+            yPercent: 0,
+            scale: 0.55,
+            transformOrigin: "top left",
+          },
+          0
+        );
+      }
+
+      // 2. Reveal top-left CTA concurrently
+      if (ctaTopLeftRef.current) {
+        tl.to(
+          ctaTopLeftRef.current,
+          {
+            opacity: 1,
+            y: 0,
+          },
+          0
+        );
+      }
+
+      // 3. Reveal bottom-right content with right-to-left clip-path reveal concurrently
+      if (bottomRightRef.current) {
+        tl.to(
+          bottomRightRef.current,
+          {
+            clipPath: "inset(0% 0% 0% 0%)",
+            opacity: 1,
+          },
+          0
+        );
+      }
+    },
+  }));
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -27,20 +87,6 @@ export default function About({ onSelectSection }: AboutProps) {
             scale: 1,
             duration: 1.2,
             ease: "power2.out",
-          }
-        );
-      }
-
-      if (textRef.current) {
-        gsap.fromTo(
-          textRef.current,
-          { opacity: 0, y: 35 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.9,
-            ease: "power3.out",
-            delay: 0.25,
           }
         );
       }
@@ -72,15 +118,60 @@ export default function About({ onSelectSection }: AboutProps) {
         />
       </div>
 
-      {/* Centered RAEV STUDIO Display Text */}
-      <div className="relative z-10 text-center px-4 pointer-events-none">
+      {/* RAEV STUDIO Display Text & Top-Left CTA (Initially Centered) */}
+      <div
+        ref={headingContainerRef}
+        className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-8 sm:p-10 md:p-12 lg:p-16 pointer-events-auto transition-none"
+      >
         <h1
-          ref={textRef}
-          className="font-being font uppercase text-white tracking-[-0.00005em] leading-none text-[12vw] sm:text-[13vw] md:text-[14vw] lg:text-[13vw] select-none whitespace-nowrap drop-shadow-md"
+          ref={headingRef}
+          className="font-being uppercase text-white tracking-[-0.00005em] leading-none text-[12vw] sm:text-[13vw] md:text-[14vw] lg:text-[13vw] select-none whitespace-nowrap drop-shadow-md"
         >
           RAEV STUDIO
         </h1>
+
+        {/* Top-Left CTA Button (Hidden until trigger) */}
+        <div
+          ref={ctaTopLeftRef}
+          className="mt-2 sm:mt-3 md:mt-4 flex items-center opacity-0 translate-y-2 pointer-events-auto"
+        >
+          <a
+            href="#about"
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectSection?.("about");
+            }}
+            className="inline-flex items-center gap-2 sm:gap-2.5 group cursor-pointer"
+          >
+            <span className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 bg-black/90 border border-white/20 rounded-xs sm:rounded flex items-center justify-center text-white text-xs sm:text-sm font-bold group-hover:translate-x-1 transition-transform">
+              →
+            </span>
+            <span className="typo-cta text-white uppercase">
+              GET TO KNOW US
+            </span>
+          </a>
+        </div>
+      </div>
+
+      {/* Bottom-Right Content Block (Initially Hidden with Right-to-Left Clip Path) */}
+      <div
+        ref={bottomRightRef}
+        className="absolute bottom-8 right-8 sm:bottom-10 sm:right-10 md:bottom-12 md:right-12 lg:bottom-14 lg:right-16 max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl text-right z-20 pointer-events-auto opacity-0"
+        style={{ clipPath: "inset(0% 0% 0% 100%)" }}
+      >
+        <h2 className="typo-subheading uppercase text-white mb-2 sm:mb-3 drop-shadow-md">
+          WOREM IPSUM DOLOR SIT
+        </h2>
+        <p className="typo-body font-normal text-white/90 leading-snug sm:leading-relaxed text-right drop-shadow-md">
+          Forem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Nunc Vulputate Libero
+          Et Velit Interdum, Ac Aliquet Odio Mattis. Class Aptent Taciti Sociosqu Ad Litora
+          Torquent Per Conubia Nostra, Per Inceptos Himenaeos.
+        </p>
       </div>
     </section>
   );
-}
+});
+
+About.displayName = "About";
+
+export default About;

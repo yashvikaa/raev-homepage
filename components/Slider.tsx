@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
 import styles from "./Hero.module.css";
 
 const config = {
@@ -26,6 +27,7 @@ const edgeX = (position: number, width: number) =>
     (growthRatio - 1);
 
 export default function Slider() {
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const sliderRef = useRef<HTMLDivElement | null>(null);
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
     const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
@@ -34,6 +36,32 @@ export default function Slider() {
     );
     const scrollRef = useRef<number>(0);
     const scrollTargetRef = useRef<number>(0);
+
+    // Initial page load Detroit Paris-inspired entrance animation on the outer wrapper
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const ctx = gsap.context(() => {
+            gsap.fromTo(
+                containerRef.current,
+                {
+                    scale: 0.75,
+                    x: -80,
+                    y: 80,
+                    transformOrigin: "bottom left",
+                },
+                {
+                    scale: 1,
+                    x: 0,
+                    y: 0,
+                    duration: 1.1,
+                    ease: "power4.out",
+                }
+            );
+        }, containerRef);
+
+        return () => ctx.revert();
+    }, []);
 
     useEffect(() => {
         const slider = sliderRef.current;
@@ -143,23 +171,25 @@ export default function Slider() {
     }, []);
 
     return (
-        <div ref={sliderRef} className={styles.slider}>
-            {Array.from({ length: slideCount }).map((_, i) => (
-                <div
-                    key={i}
-                    ref={(el) => {
-                        slideRefs.current[i] = el;
-                    }}
-                    className={styles.slide}
-                >
-                    <img
+        <div ref={containerRef} className="w-full h-full">
+            <div ref={sliderRef} className={styles.slider}>
+                {Array.from({ length: slideCount }).map((_, i) => (
+                    <div
+                        key={i}
                         ref={(el) => {
-                            imgRefs.current[i] = el;
+                            slideRefs.current[i] = el;
                         }}
-                        alt={`Slide ${i + 1}`}
-                    />
-                </div>
-            ))}
+                        className={styles.slide}
+                    >
+                        <img
+                            ref={(el) => {
+                                imgRefs.current[i] = el;
+                            }}
+                            alt={`Slide ${i + 1}`}
+                        />
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

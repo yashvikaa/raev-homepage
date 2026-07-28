@@ -8,25 +8,31 @@
   font-display: swap;
 }
 
+/* Haas Grot Disp Trial - 55 Roman (400) */
 @font-face {
-  font-family: "Helvetica";
-  src: url("/fonts/Helvetica.ttf") format("truetype");
+  font-family: "Haas Grot Disp Trial";
+  src: url("/fonts/HaasGrotDispTrial-55Roman.otf") format("opentype"),
+       url("/fonts/HaasGrotDispTrial-55Roman.ttf") format("truetype"),
+       url("/fonts/Helvetica.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
+/* Haas Grot Disp Trial - 65 Medium (500) */
 @font-face {
-  font-family: "Helvetica";
-  src: url("/fonts/Helvetica-Bold.ttf") format("truetype");
-  font-weight: 700 900;
+  font-family: "Haas Grot Disp Trial";
+  src: url("/fonts/HaasGrotDispTrial-65Medium.otf") format("opentype"),
+       url("/fonts/HaasGrotDispTrial-65Medium.ttf") format("truetype"),
+       url("/fonts/Helvetica-Bold.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @theme inline {
   --font-being: var(--font-being), "Being", sans-serif;
-  --font-helvetica: var(--font-helvetica), "Helvetica", Arial, sans-serif;
+  --font-haas: var(--font-haas), "Haas Grot Disp Trial", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-sans: var(--font-geist-sans), sans-serif;
 }
 
@@ -43,3 +49,66 @@ body {
   overflow-x: hidden;
   font-family: var(--font-being), "Being", sans-serif;
 }
+
+/* Reusable Haas Typography Utility Classes */
+.font-haas {
+  font-family: "Haas Grot Disp Trial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* CTA Buttons: 24px, Haas Grot Disp Trial, 65 Medium, letter-spacing -6% */
+.typo-cta,
+.font-haas-cta {
+  font-family: "Haas Grot Disp Trial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: -0.06em;
+}
+
+/* Navbar (About Us, Projects, Contact): 24px, Haas Grot Disp Trial, 65 Medium, letter-spacing -6% */
+.typo-nav,
+.font-haas-nav {
+  font-family: "Haas Grot Disp Trial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: -0.06em;
+}
+
+/* Sub Headings: 32px, Haas Grot Disp Trial, 65 Medium, letter-spacing -6% */
+.typo-subheading,
+.font-haas-subheading {
+  font-family: "Haas Grot Disp Trial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 32px;
+  letter-spacing: -0.06em;
+}
+
+/* Body Text: 24px, Haas Grot Disp Trial, 55 Roman, letter-spacing -6% */
+.typo-body,
+.font-haas-body {
+  font-family: "Haas Grot Disp Trial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  letter-spacing: -0.06em;
+}
+
+/* Infinite Marquee Animation for Clients Logo Carousel */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+

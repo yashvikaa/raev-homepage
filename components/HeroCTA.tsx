@@ -36,7 +36,7 @@ export default function HeroCTA({ text = "→ WORK WITH US", href = "#" }: HeroC
       <a
         ref={ctaRef}
         href={href}
-        className="inline-flex items-center text-base sm:text-lg md:text-xl lg:text-2xl font-extrabold tracking-wider text-[#222222] hover:text-black uppercase underline underline-offset-6 cursor-pointer transition-all duration-200 group font-helvetica"
+        className="inline-flex items-center typo-cta text-[#222222] hover:text-black uppercase underline underline-offset-6 cursor-pointer transition-all duration-200 group"
       >
         <span className="group-hover:translate-x-1.5 transition-transform duration-200 inline-block">
           {text}

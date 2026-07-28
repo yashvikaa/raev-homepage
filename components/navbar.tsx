@@ -143,7 +143,7 @@ export default function Navbar({ activeSection = "hero", onSelectSection }: Navb
               ref={(el) => {
                 itemsRef.current[index] = el;
               }}
-              className={`text-base sm:text-lg md:text-xl font-extrabold tracking-wider transition-colors uppercase py-0.5 font-helvetica block focus:outline-none focus:underline ${textClass}`}
+              className={`typo-nav transition-colors uppercase py-0.5 block focus:outline-none focus:underline ${textClass}`}
             >
               {item.label}
             </a>

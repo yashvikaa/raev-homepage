@@ -19,7 +19,7 @@ const beingFont = localFont({
   display: "swap",
 });
 
-const helveticaFont = localFont({
+const haasFont = localFont({
   src: [
     {
       path: "./fonts/Helvetica.ttf",
@@ -28,11 +28,11 @@ const helveticaFont = localFont({
     },
     {
       path: "./fonts/Helvetica-Bold.ttf",
-      weight: "700",
+      weight: "500",
       style: "normal",
     },
   ],
-  variable: "--font-helvetica",
+  variable: "--font-haas",
   display: "swap",
 });
 
@@ -49,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${beingFont.variable} ${helveticaFont.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${beingFont.variable} ${haasFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#F5F4F0] font-being">
         {children}
