@@ -9,6 +9,7 @@ import Clients from "@/components/Clients";
 import CreativityScale from "@/components/CreativityScale";
 import Navbar from "@/components/navbar";
 import Loader from "@/components/Loader";
+import Footer from "@/components/footer";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -108,6 +109,9 @@ export default function Home() {
 
       {/* Creativity at Scale Section */}
       <CreativityScale />
+
+      {/* Footer Section */}
+      <Footer />
     </main>
   );
 }

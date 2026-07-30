@@ -35,13 +35,13 @@ export default function HeroHeading() {
       ref={containerRef}
       className="font-being font uppercase text-black select-none whitespace-nowrap"
     >
-      <span className="block overflow-hidden pb-0.5">
-        <span className="block heading-line text-[14vw] sm:text-[13.5vw] md:text-[13.5vw] lg:text-[13.5vw] leading-[0.92] tracking-[-0.000000005em]">
+      <span className="block overflow-hidden">
+        <span className="block heading-line text-[14vw] sm:text-[13.5vw] md:text-[13.5vw] lg:text-[13.5vw] leading-[0.70] tracking-[-0.000000005em]">
           ONE CAMPAIGN.
         </span>
       </span>
-      <span className="block overflow-hidden pt-0.5">
-        <span className="block heading-line text-[7.2vw] sm:text-[7.6vw] md:text-[8vw] lg:text-[7.6vw] leading-[0.92] tracking-[-0.0005em] mt-1.5 sm:mt-2">
+      <span className="block overflow-hidden">
+        <span className="block heading-line text-[7.2vw] sm:text-[7.6vw] md:text-[8vw] lg:text-[7.6vw] leading-[0.72] tracking-[-0.0005em] mt-1 sm:mt-2 md:mt-2">
           HUNDREDS OF POSSIBILITIES.
         </span>
       </span>
