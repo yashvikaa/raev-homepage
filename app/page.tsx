@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Hero from "@/components/hero";
 import About, { AboutRefHandle } from "@/components/About";
 import Clients from "@/components/Clients";
+import CreativityScale from "@/components/CreativityScale";
 import Navbar from "@/components/navbar";
 import Loader from "@/components/Loader";
 
@@ -104,6 +105,9 @@ export default function Home() {
 
       {/* Clients Section (natural document flow below pinned container) */}
       <Clients />
+
+      {/* Creativity at Scale Section */}
+      <CreativityScale />
     </main>
   );
 }

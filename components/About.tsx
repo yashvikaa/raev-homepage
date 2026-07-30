@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
+import CTAButton from "./CTAButton";
 
 interface AboutProps {
   onSelectSection?: (section: "hero" | "about") => void;
@@ -17,7 +18,6 @@ const About = forwardRef<AboutRefHandle, AboutProps>(({ onSelectSection }, ref) 
   const bgRef = useRef<HTMLDivElement | null>(null);
   const headingContainerRef = useRef<HTMLDivElement | null>(null);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
-  const ctaTopLeftRef = useRef<HTMLDivElement | null>(null);
   const bottomRightRef = useRef<HTMLDivElement | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const hasAnimatedRef = useRef(false);
@@ -48,19 +48,7 @@ const About = forwardRef<AboutRefHandle, AboutProps>(({ onSelectSection }, ref) 
         );
       }
 
-      // 2. Reveal top-left CTA concurrently
-      if (ctaTopLeftRef.current) {
-        tl.to(
-          ctaTopLeftRef.current,
-          {
-            opacity: 1,
-            y: 0,
-          },
-          0
-        );
-      }
-
-      // 3. Reveal bottom-right content with right-to-left clip-path reveal concurrently
+      // 2. Reveal bottom-right content with right-to-left clip-path reveal concurrently
       if (bottomRightRef.current) {
         tl.to(
           bottomRightRef.current,
@@ -129,28 +117,6 @@ const About = forwardRef<AboutRefHandle, AboutProps>(({ onSelectSection }, ref) 
         >
           RAEV STUDIO
         </h1>
-
-        {/* Top-Left CTA Button (Hidden until trigger) */}
-        <div
-          ref={ctaTopLeftRef}
-          className="mt-2 sm:mt-3 md:mt-4 flex items-center opacity-0 translate-y-2 pointer-events-auto"
-        >
-          <a
-            href="#about"
-            onClick={(e) => {
-              e.preventDefault();
-              onSelectSection?.("about");
-            }}
-            className="inline-flex items-center gap-2 sm:gap-2.5 group cursor-pointer"
-          >
-            <span className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 bg-black/90 border border-white/20 rounded-xs sm:rounded flex items-center justify-center text-white text-xs sm:text-sm font-bold group-hover:translate-x-1 transition-transform">
-              →
-            </span>
-            <span className="typo-cta text-white uppercase">
-              GET TO KNOW US
-            </span>
-          </a>
-        </div>
       </div>
 
       {/* Bottom-Right Content Block (Initially Hidden with Right-to-Left Clip Path) */}
@@ -162,7 +128,7 @@ const About = forwardRef<AboutRefHandle, AboutProps>(({ onSelectSection }, ref) 
         <h2 className="typo-subheading uppercase text-white mb-2 sm:mb-3 drop-shadow-md">
           WOREM IPSUM DOLOR SIT
         </h2>
-        <p className="typo-body font-normal text-white/90 leading-snug sm:leading-relaxed text-right drop-shadow-md">
+        <p className="typo-body font-normal text-white/90 leading-[1.1] text-right drop-shadow-md">
           Forem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Nunc Vulputate Libero
           Et Velit Interdum, Ac Aliquet Odio Mattis. Class Aptent Taciti Sociosqu Ad Litora
           Torquent Per Conubia Nostra, Per Inceptos Himenaeos.
