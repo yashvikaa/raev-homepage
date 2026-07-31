@@ -7,7 +7,6 @@ import Hero from "@/components/hero";
 import About, { AboutRefHandle } from "@/components/About";
 import Clients from "@/components/Clients";
 import CreativityScale from "@/components/CreativityScale";
-import Navbar from "@/components/navbar";
 import Loader from "@/components/Loader";
 import Footer from "@/components/footer";
 
@@ -83,9 +82,6 @@ export default function Home() {
   return (
     <main className="relative w-full bg-[#F5F4F0] overflow-x-hidden min-h-screen">
       <Loader />
-
-      {/* Persistent Navbar */}
-      <Navbar activeSection={activeSection} onSelectSection={handleSelectSection} />
 
       {/* Pinned Stacking Container */}
       <div ref={pinContainerRef} className="relative w-full h-screen h-[100svh] overflow-hidden">

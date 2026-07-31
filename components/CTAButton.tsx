@@ -40,7 +40,7 @@ export default function CTAButton({
 
       {/* Stationary Button Text (Transitions text color smoothly) */}
       <span
-        className={`relative z-10 typo-cta uppercase font-medium leading-none h-full flex items-center pr-3 sm:pr-4 md:pr-5 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`relative z-10 typo-cta uppercase font-normal leading-none h-full flex items-center pr-3 sm:pr-4 md:pr-5 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           darkBackground
             ? "text-white"
             : "text-black group-hover:text-white"

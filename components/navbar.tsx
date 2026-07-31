@@ -1,33 +1,49 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import gsap from "gsap";
 
 interface NavItem {
   label: string;
   href: string;
-  sectionId?: "hero" | "about";
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "ABOUT US", href: "#about", sectionId: "about" },
-  { label: "PROJECTS", href: "#projects" },
-  { label: "CONTACT", href: "#contact" },
+  { label: "ABOUT US", href: "/about" },
+  { label: "PROJECTS", href: "/#projects" },
+  { label: "CONTACT", href: "/#contact" },
 ];
 
-interface NavbarProps {
-  activeSection?: "hero" | "about";
-  onSelectSection?: (section: "hero" | "about") => void;
-}
-
-export default function Navbar({ activeSection = "hero", onSelectSection }: NavbarProps) {
+export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrollSection, setScrollSection] = useState<"hero" | "about">("hero");
+  const pathname = usePathname();
+
   const containerRef = useRef<HTMLElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  const isAboutPage = activeSection === "about";
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const handleScroll = () => {
+      if (window.scrollY >= window.innerHeight * 0.5) {
+        setScrollSection("about");
+      } else {
+        setScrollSection("hero");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [pathname]);
+
+  const isAboutPage = pathname === "/" && scrollSection === "about";
 
   useEffect(() => {
     if (!menuRef.current) return;
@@ -87,15 +103,23 @@ export default function Navbar({ activeSection = "hero", onSelectSection }: Navb
   };
 
   const handleLogoClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onSelectSection?.("hero");
+    if (pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    setIsOpen(false);
   };
 
-  const handleItemClick = (e: React.MouseEvent, sectionId?: "hero" | "about") => {
-    if (sectionId) {
+  const handleItemClick = (e: React.MouseEvent, href: string) => {
+    if (pathname === "/" && href.startsWith("#")) {
       e.preventDefault();
-      onSelectSection?.(sectionId);
+      const targetId = href.replace("#", "");
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
     }
+    setIsOpen(false);
   };
 
   return (
@@ -105,20 +129,18 @@ export default function Navbar({ activeSection = "hero", onSelectSection }: Navb
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}
       onBlur={handleBlur}
-      className="absolute top-3 right-8 sm:top-4 sm:right-10 md:top-4 md:right-12 lg:top-5 lg:right-16 z-30 flex flex-col items-end select-none transition-colors duration-300"
+      className="fixed top-3 right-8 sm:top-4 sm:right-10 md:top-4 md:right-12 lg:top-5 lg:right-16 z-50 flex flex-col items-end select-none transition-colors duration-300"
     >
       {/* RAEV Logo Trigger */}
-      <a
+      <Link
         href="/"
         onClick={handleLogoClick}
         aria-expanded={isOpen}
         aria-label="RAEV Homepage and Navigation"
-        className={`text-3xl sm:text-4xl md:text-4xl lg:text-5xl font tracking-tight uppercase cursor-pointer hover:opacity-75 transition-opacity focus:outline-none font-being block ${
-          isAboutPage ? "text-white" : "text-black"
-        }`}
+        className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font tracking-tight uppercase cursor-pointer hover:opacity-75 transition-opacity focus:outline-none font-being block text-black"
       >
         RAEV
-      </a>
+      </Link>
 
       {/* Navigation Links Dropdown */}
       <div
@@ -126,27 +148,23 @@ export default function Navbar({ activeSection = "hero", onSelectSection }: Navb
         className="overflow-hidden opacity-0 h-0 flex flex-col items-end pt-2 space-y-1 text-right"
       >
         {NAV_ITEMS.map((item, index) => {
-          const isItemActive = activeSection === item.sectionId;
-          const textClass = isAboutPage
-            ? isItemActive
-              ? "text-white underline underline-offset-4"
-              : "text-white hover:text-white/80"
-            : isItemActive
+          const isItemActive = pathname === item.href;
+          const textClass = isItemActive
             ? "text-black underline underline-offset-4"
             : "text-black hover:text-neutral-600";
 
           return (
-            <a
+            <Link
               key={item.label}
               href={item.href}
-              onClick={(e) => handleItemClick(e, item.sectionId)}
+              onClick={(e) => handleItemClick(e, item.href)}
               ref={(el) => {
                 itemsRef.current[index] = el;
               }}
               className={`typo-nav transition-colors uppercase py-0.5 block focus:outline-none focus:underline ${textClass}`}
             >
               {item.label}
-            </a>
+            </Link>
           );
         })}
       </div>
