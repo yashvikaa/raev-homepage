@@ -1,173 +1,307 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import gsap from "gsap";
 
 interface NavItem {
   label: string;
   href: string;
+  subtitle?: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "ABOUT US", href: "/about" },
-  { label: "PROJECTS", href: "/#projects" },
-  { label: "CONTACT", href: "/#contact" },
+  { label: "HOME", href: "/", subtitle: "01" },
+  { label: "ABOUT US", href: "/about", subtitle: "02" },
+  { label: "PROJECTS", href: "/#clients", subtitle: "03" },
+  { label: "CASE STUDY", href: "/#creativity", subtitle: "04" },
+  { label: "CONTACT", href: "/#contact", subtitle: "05" },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrollSection, setScrollSection] = useState<"hero" | "about">("hero");
   const pathname = usePathname();
+  const router = useRouter();
 
-  const containerRef = useRef<HTMLElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const menuOverlayRef = useRef<HTMLDivElement | null>(null);
+  const coverItemsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const navLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  useEffect(() => {
-    if (pathname !== "/") return;
-
-    const handleScroll = () => {
-      if (window.scrollY >= window.innerHeight * 0.5) {
-        setScrollSection("about");
-      } else {
-        setScrollSection("hero");
-      }
+  // Calculate radial position away from center for floating cover elements
+  const getRadialTranslation = (element: HTMLElement, distance = 400) => {
+    const rect = element.getBoundingClientRect();
+    const elemCenter = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
+    const viewportCenter = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    let dx = elemCenter.x - viewportCenter.x;
+    let dy = elemCenter.y - viewportCenter.y;
+    if (dx === 0 && dy === 0) {
+      dx = 1;
+      dy = 1;
+    }
+    const len = Math.hypot(dx, dy) || 1;
+    return {
+      x: (dx / len) * distance,
+      y: (dy / len) * distance,
+    };
+  };
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [pathname]);
+  // Build the GSAP Clip Timeline
+  const initTimeline = useCallback(() => {
+    if (!menuOverlayRef.current) return;
 
-  const isAboutPage = pathname === "/" && scrollSection === "about";
+    // Reset styles
+    gsap.set(menuOverlayRef.current, {
+      clipPath: "polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)",
+      visibility: "hidden",
+      pointerEvents: "none",
+    });
 
-  useEffect(() => {
-    if (!menuRef.current) return;
+    const coverElems = coverItemsRef.current.filter(Boolean) as HTMLDivElement[];
+    gsap.set(coverElems, { x: 0, y: 0, opacity: 1, scale: 1, rotation: 0 });
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ paused: true });
+    const links = navLinksRef.current.filter(Boolean) as HTMLAnchorElement[];
+    gsap.set(links, { y: 60, opacity: 0 });
 
-      tl.to(menuRef.current, {
-        height: "auto",
-        opacity: 1,
-        duration: 0.4,
-        ease: "power3.out",
-      }).fromTo(
-        itemsRef.current.filter(Boolean),
-        { opacity: 0, y: 10 },
+    const tl = gsap.timeline({
+      paused: true,
+      onStart: () => {
+        if (menuOverlayRef.current) {
+          gsap.set(menuOverlayRef.current, { visibility: "visible", pointerEvents: "auto" });
+        }
+      },
+      onReverseComplete: () => {
+        if (menuOverlayRef.current) {
+          gsap.set(menuOverlayRef.current, { visibility: "hidden", pointerEvents: "none" });
+        }
+      },
+    });
+
+    // 1. Clip Path Reveal (Center outwards polygon expand)
+    tl.to(
+      menuOverlayRef.current,
+      {
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+        duration: 0.75,
+        ease: "expo.inOut",
+      },
+      0
+    );
+
+    // 2. Radial cover items scatter effect
+    coverElems.forEach((item, index) => {
+      const { x, y } = getRadialTranslation(item, 350);
+      tl.to(
+        item,
         {
-          opacity: 1,
-          y: 0,
-          duration: 0.35,
-          stagger: 0.08,
-          ease: "power3.out",
+          x,
+          y,
+          opacity: 0,
+          scale: 0.8,
+          rotation: (index % 2 === 0 ? 1 : -1) * 15,
+          duration: 0.65,
+          ease: "expo.out",
         },
-        "-=0.2"
+        0.1 + index * 0.04
       );
+    });
 
-      timelineRef.current = tl;
-    }, containerRef);
+    // 3. Staggered reveal for menu navigation links
+    tl.to(
+      links,
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.07,
+        ease: "power3.out",
+      },
+      0.35
+    );
 
-    return () => ctx.revert();
+    timelineRef.current = tl;
   }, []);
 
   useEffect(() => {
+    initTimeline();
+    const handleResize = () => {
+      if (!isOpen) initTimeline();
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [initTimeline, isOpen]);
+
+  // Toggle open/close state
+  const toggleMenu = () => {
     if (!timelineRef.current) return;
-    if (isOpen) {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+
+    if (nextState) {
       timelineRef.current.play();
     } else {
       timelineRef.current.reverse();
     }
+  };
+
+  // Keyboard accessibility (ESC key to close)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        toggleMenu();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
-  const handleMouseEnter = () => {
-    setIsOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsOpen(false);
-  };
-
-  const handleFocus = () => {
-    setIsOpen(true);
-  };
-
-  const handleBlur = (e: React.FocusEvent) => {
-    if (!containerRef.current?.contains(e.relatedTarget as Node)) {
-      setIsOpen(false);
-    }
-  };
-
-  const handleLogoClick = (e: React.MouseEvent) => {
-    if (pathname === "/") {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    setIsOpen(false);
-  };
-
+  // Handle navigation click inside menu
   const handleItemClick = (e: React.MouseEvent, href: string) => {
-    if (pathname === "/" && href.startsWith("#")) {
-      e.preventDefault();
-      const targetId = href.replace("#", "");
-      const el = document.getElementById(targetId);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
-    }
+    e.preventDefault();
+    if (!timelineRef.current) return;
+
+    // Close menu animation first
     setIsOpen(false);
+    timelineRef.current.reverse();
+
+    setTimeout(() => {
+      if (href.startsWith("/#")) {
+        const targetId = href.replace("/#", "");
+        if (pathname === "/") {
+          const el = document.getElementById(targetId);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+          } else if (targetId === "about") {
+            window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+          }
+        } else {
+          router.push(href);
+        }
+      } else if (href === "/") {
+        if (pathname === "/") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          router.push("/");
+        }
+      } else {
+        router.push(href);
+      }
+    }, 600);
   };
 
   return (
-    <nav
-      ref={containerRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      className="fixed top-3 right-8 sm:top-4 sm:right-10 md:top-4 md:right-12 lg:top-5 lg:right-16 z-50 flex flex-col items-end select-none transition-colors duration-300"
-    >
-      {/* RAEV Logo Trigger */}
-      <Link
-        href="/"
-        onClick={handleLogoClick}
-        aria-expanded={isOpen}
-        aria-label="RAEV Homepage and Navigation"
-        className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font tracking-tight uppercase cursor-pointer hover:opacity-75 transition-opacity focus:outline-none font-being block text-black"
-      >
-        RAEV
-      </Link>
+    <div ref={containerRef} className="relative z-[100] select-none">
+      {/* Fixed Header Bar with Logo and Toggle Trigger */}
+      <header className="fixed top-0 left-0 w-full px-6 py-5 sm:px-10 sm:py-6 md:px-14 md:py-7 flex items-center justify-between z-[110] pointer-events-auto mix-blend-difference">
+        <div />
 
-      {/* Navigation Links Dropdown */}
+        {/* Toggle Button Trigger */}
+        <button
+          onClick={toggleMenu}
+          aria-expanded={isOpen}
+          aria-label={isOpen ? "Close Navigation Menu" : "Open Navigation Menu"}
+          className="flex items-center gap-3 px-4 py-2 rounded-lg border border-white/30 bg-black/40 backdrop-blur-md text-white hover:bg-white hover:text-black transition-all duration-300 group cursor-pointer focus:outline-none"
+        >
+          <span className="text-sm font-haas uppercase tracking-wider">
+            {isOpen ? "CLOSE" : "MENU"}
+          </span>
+          <div className="relative w-5 h-4 flex flex-col justify-between items-center opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+            <span
+              className={`w-full h-0.5 bg-current transition-all duration-300 transform ${
+                isOpen ? "rotate-45 translate-y-1.5" : ""
+              }`}
+            />
+            <span
+              className={`w-full h-0.5 bg-current transition-all duration-300 ${
+                isOpen ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`w-full h-0.5 bg-current transition-all duration-300 transform ${
+                isOpen ? "-rotate-45 -translate-y-1.5" : ""
+              }`}
+            />
+          </div>
+        </button>
+      </header>
+
+      {/* Full-Screen GSAP Clip Navigation Overlay */}
       <div
-        ref={menuRef}
-        className="overflow-hidden opacity-0 h-0 flex flex-col items-end pt-2 space-y-1 text-right"
+        ref={menuOverlayRef}
+        aria-hidden={!isOpen}
+        className="fixed inset-0 w-screen h-screen z-[90] bg-[#0E0E0E] text-[#F5F4F0] flex flex-col justify-between p-8 sm:p-12 md:p-16 overflow-hidden"
       >
-        {NAV_ITEMS.map((item, index) => {
-          const isItemActive = pathname === item.href;
-          const textClass = isItemActive
-            ? "text-black underline underline-offset-4"
-            : "text-black hover:text-neutral-600";
-
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              onClick={(e) => handleItemClick(e, item.href)}
+        {/* Decorative Grid Cover Cards (Scatter Radially on Open) */}
+        <div className="absolute inset-0 grid grid-cols-2 sm:grid-cols-4 gap-4 p-8 pointer-events-none opacity-20 z-0">
+          {[1, 2, 3, 4].map((num, idx) => (
+            <div
+              key={num}
               ref={(el) => {
-                itemsRef.current[index] = el;
+                coverItemsRef.current[idx] = el;
               }}
-              className={`typo-nav transition-colors uppercase py-0.5 block focus:outline-none focus:underline ${textClass}`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
+              className="w-full h-full rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm"
+            />
+          ))}
+        </div>
+
+        {/* Top Header Placeholder spacing */}
+        <div className="w-full h-16 sm:h-20" />
+
+        {/* Main Navigation Links */}
+        <div className="relative z-10 my-auto flex flex-col justify-center items-start space-y-4 sm:space-y-6 md:space-y-8 max-w-5xl mx-auto w-full">
+          {NAV_ITEMS.map((item, index) => {
+            const isActive =
+              pathname === item.href || (item.href.startsWith("/#") && pathname === "/");
+
+            return (
+              <div key={item.label} className="overflow-hidden w-full">
+                <Link
+                  href={item.href}
+                  ref={(el) => {
+                    navLinksRef.current[index] = el;
+                  }}
+                  onClick={(e) => handleItemClick(e, item.href)}
+                  className="group flex items-baseline gap-4 sm:gap-8 text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-being uppercase tracking-tight text-white/90 hover:text-white transition-colors duration-300 focus:outline-none"
+                >
+                  <span className="text-sm sm:text-base md:text-lg font-haas text-neutral-500 group-hover:text-white transition-colors">
+                    {item.subtitle}
+                  </span>
+                  <span className="relative inline-block transform group-hover:translate-x-3 transition-transform duration-300">
+                    {item.label}
+                    {isActive && (
+                      <span className="absolute left-0 -bottom-2 w-full h-1 bg-white/80 rounded-full" />
+                    )}
+                  </span>
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Footer info inside overlay */}
+        <div className="relative z-10 w-full pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm font-haas text-neutral-400 gap-4">
+          <div>
+            <span>RAEV DIGITAL AGENCY &copy; {new Date().getFullYear()}</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <a href="#contact" className="hover:text-white transition-colors">
+              HELLO@RAEV.STUDIO
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">
+              INSTAGRAM
+            </a>
+          </div>
+        </div>
       </div>
-    </nav>
+    </div>
   );
 }
