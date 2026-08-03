@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -29,12 +29,54 @@ const services = [
 ];
 
 export default function Services() {
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [stickyTop, setStickyTop] = useState(0);
+
+  // Calculate the negative top offset so the section only sticks
+  // once the user has scrolled to see its entire content.
+  useEffect(() => {
+    const calculateTop = () => {
+      if (!sectionRef.current) return;
+      const sectionHeight = sectionRef.current.offsetHeight;
+      const viewportHeight = window.innerHeight;
+      // Only apply negative offset if section is taller than the viewport
+      if (sectionHeight > viewportHeight) {
+        setStickyTop(-(sectionHeight - viewportHeight));
+      } else {
+        setStickyTop(0);
+      }
+    };
+
+    calculateTop();
+    window.addEventListener("resize", calculateTop);
+    return () => window.removeEventListener("resize", calculateTop);
+  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
+      // Slide-in heading from the left
+      if (headingRef.current) {
+        gsap.fromTo(
+          headingRef.current,
+          { x: "-100%", opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: headingRef.current,
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
+
       rowRefs.current.forEach((row, index) => {
         if (!row) return;
 
@@ -62,10 +104,13 @@ export default function Services() {
   }, []);
 
   return (
-    <section className="w-full">
+    <section ref={sectionRef} className="w-full sticky z-0" style={{ top: `${stickyTop}px` }}>
       {/* Top Area — White background, oversized heading */}
-      <div className="w-full bg-white pt-8 sm:pt-10 md:pt-12 pb-0 px-6 sm:px-12 md:px-20 lg:px-28 xl:px-36">
-        <h2 className="font-being uppercase text-black text-[13vw] sm:text-[12vw] md:text-[11.5vw] lg:text-[11vw] leading-[0.61] tracking-tight select-none">
+      <div className="w-full bg-white pt-8 sm:pt-10 md:pt-12 pb-0 px-6 sm:px-12 md:px-20 lg:px-28 xl:px-36 overflow-hidden">
+        <h2
+          ref={headingRef}
+          className="font-being uppercase text-black text-[13vw] sm:text-[12vw] md:text-[11.5vw] lg:text-[11vw] leading-[0.61] tracking-tight select-none"
+        >
           OUR SERVICES
         </h2>
       </div>

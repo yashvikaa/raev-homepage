@@ -209,7 +209,7 @@ export default function Navbar() {
           onClick={toggleMenu}
           aria-expanded={isOpen}
           aria-label={isOpen ? "Close Navigation Menu" : "Open Navigation Menu"}
-          className="flex items-center gap-3 px-4 py-2 rounded-lg border border-white/30 bg-black/40 backdrop-blur-md text-white hover:bg-white hover:text-black transition-all duration-300 group cursor-pointer focus:outline-none"
+          className="flex items-center gap-3 px-4 py-2 border border-white/30 bg-black text-white hover:bg-white hover:text-black transition-all duration-300 group cursor-pointer focus:outline-none"
         >
           <span className="text-sm font-haas uppercase tracking-wider">
             {isOpen ? "CLOSE" : "MENU"}
