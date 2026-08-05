@@ -24,11 +24,11 @@ export default function CreativityScale() {
           {/* Left Block: Heading, Subheading & Body Text */}
           <div className="flex-1 max-w-3xl">
             {/* Heading: CREATIVITY AT SCALE */}
-            <h2 className="font-being uppercase text-black leading-[0.88] select-none whitespace-nowrap">
-              <span className="block text-[14vw] sm:text-[13.5vw] md:text-[13.5vw] lg:text-[13.5vw] leading-[0.92] tracking-[-0.000000005em]">
+            <h2 className="font-being uppercase text-black select-none whitespace-nowrap">
+              <span className="block text-[14vw] sm:text-[13.5vw] md:text-[13.5vw] lg:text-[13.5vw] leading-[0.70] tracking-[-0.000000005em]">
                 CREATIVITY
               </span>
-              <span className="block text-[7.2vw] sm:text-[7.6vw] md:text-[8vw] lg:text-[7.6vw] leading-[0.92] tracking-[-0.0005em] mt-1 sm:mt-2">
+              <span className="block text-[7.2vw] sm:text-[7.6vw] md:text-[8vw] lg:text-[7.6vw] leading-[0.72] tracking-[-0.0005em] mt-1 sm:mt-2 md:mt-2">
                 AT SCALE
               </span>
             </h2>
