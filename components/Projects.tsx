@@ -27,7 +27,7 @@ const PROJECTS: ProjectItem[] = [
     description:
       "Forem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Nunc Vulputate Libero Et Velit Interdum, Ac Aliquet Odio Mattis. Class Aptent Taciti Sociosqu Ad Litora Torquent Per Conubia Nostra, Per Inceptos Himenaeos.",
     image: "/images/projects/project-1.jpg",
-    link: "/case-studies",
+    link: "/project-showcase#project1",
   },
   {
     id: "02",
